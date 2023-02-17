@@ -31,9 +31,9 @@ for zone_ids in data["result"]:
     page = 1
     while True:
         # Get filters
-        filters_url = BASE_URL + \
+        filters_api = BASE_URL + \
             f"/{zone_id}/filters?page={page}&per_page=1000"
-        response = requests.get(filters_url, headers=headers)
+        response = requests.get(filters_api, headers=headers)
         filters_raw_data = response.json()
         
         # Iterate over the data from the current page of the filters API
@@ -46,9 +46,9 @@ for zone_ids in data["result"]:
                 filters_id = filters["id"]
 
                 # Make a request to the filters API endpoint for the current IDs
-                third_api_url = BASE_URL + \
+                filters_id_api = BASE_URL + \
                     f"/{zone_id}/filters/{filters_id}"
-                response = requests.delete(third_api_url, headers=headers)
+                response = requests.delete(filters_id_api, headers=headers)
                 print(response.text)
 
         # Check if there are more pages of results
