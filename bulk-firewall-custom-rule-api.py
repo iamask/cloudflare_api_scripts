@@ -97,6 +97,7 @@ for zone_ids in data["result"]:
                     print(rulesets_current_payload_transform)
                     rules_data["rules"].append(rulesets_current_payload_transform)
                     # print(rules_data)
+                    
                     # Add the final payload to the custom rules API for migration
                     rulesets_specific_current = BASE_URL + \
                         f"/{zone_id}/rulesets/{ruleset_id}"
