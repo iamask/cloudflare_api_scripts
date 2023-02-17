@@ -52,6 +52,8 @@ for zone_ids in data["result"]:
                 # Extract top-level prop from the firewall rule payload
                 firewall_rule_transform["description"] = firewall_rule["description"]
                 firewall_rule_transform["action"] = firewall_rule["action"]
+                
+                # Fix those bypass rules into skip, since bypass doesn't exist in custom rules
                 if firewall_rule_transform["action"] == "bypass":
                     firewall_rule_transform["action"] = "skip"
 
@@ -62,10 +64,10 @@ for zone_ids in data["result"]:
                 # Create the object that will contain the "rules" array to be used in custom rules API
                 rules_data = {}
 
-                # Create the "rules" array to be used in the custom rules APi
+                # Create the "rules" array to be used in the custom rules API
                 rules_data["rules"] = []
 
-                # Add the firewall rule payloads from before into "rules" array
+                # Add the firewall rule objects from before into "rules" array
                 rules_data["rules"].append(firewall_rule_transform)
 
             # Get list of rulesets from zone
@@ -86,14 +88,15 @@ for zone_ids in data["result"]:
                     # print(response.text)
 
                     # Add the payload from the ruleset to the "rules" array
-                    rulesets_current_payload = response.json()
+                    data = response.json()
+                    rulesets_current_payload = data.get("result")
                     rules_data["rules"].append(rulesets_current_payload)
-
+                    print(rules_data)
                     # Add the final payload to the custom rules API for migration
                     rulesets_specific_current = BASE_URL + \
                         f"/{zone_id}/rulesets/{ruleset_id}"
                     response = requests.put(rulesets_specific_current, headers=headers, json=rules_data)
-                    print(response.text)
+                    # print(response.text)
 
             # Check if there are more pages of results
             if not data["result"]:
