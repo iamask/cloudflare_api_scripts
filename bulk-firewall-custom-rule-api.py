@@ -90,6 +90,8 @@ for zone_ids in data["result"]:
                     # Add the payload from the ruleset to the "rules" array
                     data = response.json()
                     rulesets_current_payload = data.get("result")
+                    
+                    # Extract rules array from rulesets response
                     rulesets_current_payload_transform = {}
                     rulesets_current_payload_transform["rules"] = rulesets_current_payload["rules"]
                     print(rulesets_current_payload_transform)
