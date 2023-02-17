@@ -33,9 +33,9 @@ for zone_ids in data["result"]:
         firewall_rules_api = BASE_URL + \
             f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
         response = requests.get(firewall_rules_api, headers=headers)
-        firewall_rules_raw_data = response.json()
+        data = response.json()
         # Iterate over the data from the current page of the second API
-        for firewall_rule_ids in firewall_rules_raw_data["result"]:
+        for firewall_rule_ids in data["result"]:
          #   print(firewall_rule_ids)
             # Check if the item's description matches the desired value
             if firewall_rule_ids["description"] == "CrowdSec managed_challenge rule":
@@ -48,7 +48,7 @@ for zone_ids in data["result"]:
                 response = requests.delete(firewall_rules_id_api, headers=headers)
             #    print(data)
         # Check if there are more pages of results
-        if not firewall_rules_raw_data["result"]:
+        if not data["result"]:
             break
 
         # Move to the next page of results

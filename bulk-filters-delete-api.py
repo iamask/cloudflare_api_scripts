@@ -34,10 +34,10 @@ for zone_ids in data["result"]:
         filters_api = BASE_URL + \
             f"/{zone_id}/filters?page={page}&per_page=1000"
         response = requests.get(filters_api, headers=headers)
-        filters_raw_data = response.json()
+        data = response.json()
         
         # Iterate over the data from the current page of the filters API
-        for filters in filters_raw_data["result"]:
+        for filters in data["result"]:
 
             # Check if the filter matches the expression 
             if "ip.src in $crowdsec_managed_challenge" in filters["expression"]:
@@ -52,7 +52,7 @@ for zone_ids in data["result"]:
                 print(response.text)
 
         # Check if there are more pages of results
-        if not filters_raw_data["result"]:
+        if not data["result"]:
             break
         # Move to the next page of results
         page += 1

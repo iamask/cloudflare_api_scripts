@@ -34,9 +34,9 @@ for zone_ids in data["result"]:
             firewall_rules_api = BASE_URL + \
                 f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
             response = requests.get(firewall_rules_api, headers=headers)
-            firewall_rules_raw_data = response.json()
+            data = response.json()
             # Iterate over the data from the current page of the firewall rules endpoint
-            for firewall_rule_ids in firewall_rules_raw_data["result"]:
+            for firewall_rule_ids in data["result"]:
 
                 # Get the ID from the current item
                 firewall_rule_id = firewall_rule_ids["id"]
@@ -45,8 +45,8 @@ for zone_ids in data["result"]:
                 firewall_rules_id_api = BASE_URL + \
                     f"/{zone_id}/firewall/rules/{firewall_rule_id}"
                 response = requests.get(firewall_rules_id_api, headers=headers)
-                firewall_rules_id_raw_data = response.json()
-                firewall_rule = firewall_rules_id_raw_data.get("result")
+                data = response.json()
+                firewall_rule = data.get("result")
                 firewall_rule_transform = {}
 
                 # Extract top-level prop from the firewall rule payload
@@ -74,10 +74,10 @@ for zone_ids in data["result"]:
             rulesets_api = BASE_URL + \
                 f"/{zone_id}/rulesets"
             response = requests.get(rulesets_api, headers=headers)
-            rulesets_api_raw_data = response.json()
+            data = response.json()
 
             # Iterate over the data from
-            for ruleset_ids in rulesets_api_raw_data["result"]:
+            for ruleset_ids in data["result"]:
                 if ruleset_ids["phase"] == "http_request_firewall_custom":
                     ruleset_id = ruleset_ids["id"]
                 
@@ -88,8 +88,8 @@ for zone_ids in data["result"]:
                     # print(response.text)
 
                     # Add the payload from the ruleset to the "rules" array
-                    rulesets_id_raw_data = response.json()
-                    rulesets_current_payload = rulesets_id_raw_data.get("result")
+                    data = response.json()
+                    rulesets_current_payload = data.get("result")
                     
                     # Extract rules array from rulesets response
                     rulesets_current_payload_transform = {}
@@ -105,7 +105,7 @@ for zone_ids in data["result"]:
                     # print(response.text)
 
             # Check if there are more pages of results
-            if not firewall_rules_raw_data["result"]:
+            if not data["result"]:
                 break
 
             # Move to the next page of results
