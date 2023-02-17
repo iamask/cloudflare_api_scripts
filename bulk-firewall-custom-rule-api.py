@@ -41,7 +41,7 @@ for zone_ids in data["result"]:
                 # Get the ID from the current item
                 firewall_rule_id = firewall_rule_ids["id"]
 
-                # Make a request to the firewall rules endpoint for the specific ID using the current IDs
+                # Make a request to the firewall rules endpoint for the specific ID
                 firewall_rules_id_api = BASE_URL + \
                     f"/{zone_id}/firewall/rules/{firewall_rule_id}"
                 response = requests.get(firewall_rules_id_api, headers=headers)
@@ -58,8 +58,8 @@ for zone_ids in data["result"]:
                     firewall_rule_transform["action"] = "skip"
 
                 # Extract nested objects from the firewall rule payload
-                filter = firewall_rule["filter"]
-                firewall_rule_transform["expression"] = filter["expression"]
+                filters = firewall_rule["filter"]
+                firewall_rule_transform["expression"] = filters["expression"]
             
                 # Create the object that will contain the "rules" array to be used in custom rules API
                 rules_data = {}
@@ -71,25 +71,25 @@ for zone_ids in data["result"]:
                 rules_data["rules"].append(firewall_rule_transform)
 
             # Get list of rulesets from zone
-            rulesets = BASE_URL + \
+            rulesets_api = BASE_URL + \
                 f"/{zone_id}/rulesets"
-            response = requests.get(rulesets, headers=headers)
-            data = response.json()
+            response = requests.get(rulesets_api, headers=headers)
+            rulesets_api_raw_data = response.json()
 
             # Iterate over the data from
-            for ruleset_ids in data["result"]:
+            for ruleset_ids in rulesets_api_raw_data["result"]:
                 if ruleset_ids["phase"] == "http_request_firewall_custom":
                     ruleset_id = ruleset_ids["id"]
                 
                     # Get the current rules from the ruleset
-                    ruleset_current = BASE_URL + \
+                    rulesets_id_api = BASE_URL + \
                         f"/{zone_id}/rulesets/{ruleset_id}"
-                    response = requests.get(ruleset_current, headers=headers)
+                    response = requests.get(rulesets_id_api, headers=headers)
                     # print(response.text)
 
                     # Add the payload from the ruleset to the "rules" array
-                    data = response.json()
-                    rulesets_current_payload = data.get("result")
+                    rulesets_id_raw_data = response.json()
+                    rulesets_current_payload = rulesets_id_raw_data.get("result")
                     
                     # Extract rules array from rulesets response
                     rulesets_current_payload_transform = {}
@@ -99,9 +99,9 @@ for zone_ids in data["result"]:
                     # print(rules_data)
                     
                     # Add the final payload to the custom rules API for migration
-                    rulesets_specific_current = BASE_URL + \
+                    rulesets_specific_id_api = BASE_URL + \
                         f"/{zone_id}/rulesets/{ruleset_id}"
-                    response = requests.put(rulesets_specific_current, headers=headers, json=rules_data)
+                    response = requests.put(rulesets_specific_id_api, headers=headers, json=rules_data)
                     # print(response.text)
 
             # Check if there are more pages of results
