@@ -30,22 +30,22 @@ for zone_ids in data["result"]:
     # Make a request to the second API endpoint for the current ID
     page = 1
     while True:
-        second_api_url = BASE_URL + \
+        firewall_rules_api = BASE_URL + \
             f"/{zone_id}/firewall/rules?page={page}&per_page=10"
-        response = requests.get(second_api_url, headers=headers)
-        data = response.json()
+        response = requests.get(firewall_rules_api, headers=headers)
+        firewall_rules_raw_data = response.json()
         # Iterate over the data from the current page of the second API
-        for firewall_rule_ids in data["result"]:
+        for firewall_rule_ids in firewall_rules_raw_data["result"]:
          #   print(firewall_rule_ids)
             # Check if the item's description matches the desired value
-            if firewall_rule_ids["description"] == "duplicate form values":
+            if firewall_rule_ids["description"] == "CrowdSec managed_challenge rule":
                 # Get the ID from the current item
                 firewall_rule_id = firewall_rule_ids["id"]
             #    print(firewall_rule_id)
                 # Make a request to the third API endpoint for the current IDs
-                third_api_url = BASE_URL + \
+                firewall_rules_id_api = BASE_URL + \
                     f"/{zone_id}/firewall/rules/{firewall_rule_id}"
-                response = requests.delete(third_api_url, headers=headers)
+                response = requests.delete(firewall_rules_id_api, headers=headers)
             #    print(data)
         # Check if there are more pages of results
         if not data["result"]:
