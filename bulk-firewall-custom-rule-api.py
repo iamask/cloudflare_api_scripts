@@ -102,7 +102,7 @@ for zone_ids in data["result"]:
                     rulesets_specific_id_api = BASE_URL + \
                         f"/{zone_id}/rulesets/{ruleset_id}"
                     response = requests.put(rulesets_specific_id_api, headers=headers, json=rules_data)
-                    # print(response.text)
+                    print(response.text)
 
             # Check if there are more pages of results
             if not data["result"]:
