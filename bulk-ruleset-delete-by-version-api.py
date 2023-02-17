@@ -46,8 +46,10 @@ for zone_ids in data["result"]:
                 response = requests.get(rulesets_versions_api, headers=headers)
                 rulesets_version_raw_data = response.json()
                 
-                for rulesets_versions_id in rulesets_version_raw_data["result"][1:]:
-                    version_id = rulesets_versions_id["version"]
+                for rulesets_versions_id in rulesets_version_raw_data["result"]:
+                    print(rulesets_versions_id)
+                    for version_id in rulesets_versions_id[1:]:
+                        version_id = rulesets_versions_id["version"]
                     print(version_id)
                     
                     rulesets_specific_versions_api = BASE_URL + \
