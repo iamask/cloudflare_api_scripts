@@ -30,9 +30,9 @@ for zone_ids in data["result"]:
     # Make a request to the second API endpoint for the current ID
     page = 1
     while True:
-        rulesets = BASE_URL + \
+        rulesets_api = BASE_URL + \
             f"/{zone_id}/rulesets"
-        response = requests.get(rulesets, headers=headers)
+        response = requests.get(rulesets_api, headers=headers)
         rulesets_raw_data = response.json()
         
         # Iterate over the data from the current page of the rulesets API
@@ -41,18 +41,18 @@ for zone_ids in data["result"]:
                 ruleset_id = rulesets_ids["id"]
                 print(ruleset_id)
                 
-                rulesets_versions = BASE_URL + \
+                rulesets_versions_api = BASE_URL + \
                     f"/{zone_id}/rulesets{ruleset_id}/versions"
-                response = requests.get(rulesets_versions, headers=headers)
-                rulesets_version_data = response.json()
+                response = requests.get(rulesets_versions_api, headers=headers)
+                rulesets_version_raw_data = response.json()
                 
-                for rulesets_versions_id in rulesets_version_data["result"][1:]:
+                for rulesets_versions_id in rulesets_version_raw_data["result"][1:]:
                     version_id = rulesets_versions_id["version"]
                     print(version_id)
                     
-                    rulesets_specific_versions = BASE_URL + \
+                    rulesets_specific_versions_api = BASE_URL + \
                         f"/{zone_id}/rulesets{ruleset_id}/versions/{version_id}"
-                    response = requests.delete(rulesets_specific_versions, headers=headers)
+                    response = requests.delete(rulesets_specific_versions_api, headers=headers)
                     print(response.text)
 
         # Check if there are more pages of results
