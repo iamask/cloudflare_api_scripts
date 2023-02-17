@@ -105,7 +105,7 @@ for zone_ids in data["result"]:
                     # print(response.text)
 
             # Check if there are more pages of results
-            if not data["result"]:
+            if not firewall_rules_raw_data["result"]:
                 break
 
             # Move to the next page of results

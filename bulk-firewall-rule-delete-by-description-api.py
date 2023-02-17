@@ -31,7 +31,7 @@ for zone_ids in data["result"]:
     page = 1
     while True:
         firewall_rules_api = BASE_URL + \
-            f"/{zone_id}/firewall/rules?page={page}&per_page=10"
+            f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
         response = requests.get(firewall_rules_api, headers=headers)
         firewall_rules_raw_data = response.json()
         # Iterate over the data from the current page of the second API
@@ -48,7 +48,7 @@ for zone_ids in data["result"]:
                 response = requests.delete(firewall_rules_id_api, headers=headers)
             #    print(data)
         # Check if there are more pages of results
-        if not data["result"]:
+        if not firewall_rules_raw_data["result"]:
             break
 
         # Move to the next page of results

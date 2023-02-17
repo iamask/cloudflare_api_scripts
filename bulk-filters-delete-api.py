@@ -44,7 +44,7 @@ for zone_ids in data["result"]:
                 
                 # Get the ID from the current item
                 filters_id = filters["id"]
-
+                print(filters_id)
                 # Make a request to the filters API endpoint for the current IDs
                 filters_id_api = BASE_URL + \
                     f"/{zone_id}/filters/{filters_id}"
@@ -52,8 +52,7 @@ for zone_ids in data["result"]:
                 print(response.text)
 
         # Check if there are more pages of results
-        if not data["result"]:
+        if not filters_raw_data["result"]:
             break
-
         # Move to the next page of results
         page += 1
