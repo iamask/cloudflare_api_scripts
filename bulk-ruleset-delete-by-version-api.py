@@ -33,18 +33,20 @@ for zone_ids in data["result"]:
         rulesets = BASE_URL + \
             f"/{zone_id}/rulesets"
         response = requests.get(rulesets, headers=headers)
-        data = response.json()
-        # Iterate over the data from the current page of the second API
-        for rulesets_ids in data["result"]:
+        rulesets_raw_data = response.json()
+        
+        # Iterate over the data from the current page of the rulesets API
+        for rulesets_ids in rulesets_raw_data["result"]:
             if rulesets_ids["phase"] == "http_request_firewall_custom":
                 ruleset_id = rulesets_ids["id"]
                 print(ruleset_id)
+                
                 rulesets_versions = BASE_URL + \
                     f"/{zone_id}/rulesets{ruleset_id}/versions"
                 response = requests.get(rulesets_versions, headers=headers)
-                data = response.json()
+                rulesets_version_data = response.json()
                 
-                for rulesets_versions_id in data["result"][1:]:
+                for rulesets_versions_id in rulesets_version_data["result"][1:]:
                     version_id = rulesets_versions_id["version"]
                     print(version_id)
                     

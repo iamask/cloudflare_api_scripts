@@ -31,22 +31,22 @@ for zone_ids in data["result"]:
     # Make a request to the firewall rules endpoint with the current ID to get the list of firewall rules
         page = 1
         while True:
-            second_api_url = BASE_URL + \
+            firewall_rules_api = BASE_URL + \
                 f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
-            response = requests.get(second_api_url, headers=headers)
-            data = response.json()
+            response = requests.get(firewall_rules_api, headers=headers)
+            firewall_rules_raw_data = response.json()
             # Iterate over the data from the current page of the firewall rules endpoint
-            for firewall_rule_ids in data["result"]:
+            for firewall_rule_ids in firewall_rules_raw_data["result"]:
 
                 # Get the ID from the current item
                 firewall_rule_id = firewall_rule_ids["id"]
 
                 # Make a request to the firewall rules endpoint for the specific ID using the current IDs
-                third_api_url = BASE_URL + \
+                firewall_rules_id_api = BASE_URL + \
                     f"/{zone_id}/firewall/rules/{firewall_rule_id}"
-                response = requests.get(third_api_url, headers=headers)
-                data = response.json()
-                firewall_rule = data.get("result")
+                response = requests.get(firewall_rules_id_api, headers=headers)
+                firewall_rules_id_raw_data = response.json()
+                firewall_rule = firewall_rules_id_raw_data.get("result")
                 firewall_rule_transform = {}
 
                 # Extract top-level prop from the firewall rule payload
