@@ -1,0 +1,103 @@
+import os
+import requests
+
+# Base endpoint for Cloudflare's API for zones
+BASE_URL = "https://api.cloudflare.com/client/v4/zones"
+
+# Define Auth headers
+auth_email = os.environ.get('CLOUDFLARE_EMAIL')
+auth_key = os.environ.get('CLOUDFLARE_API_KEY')
+
+
+# Set headers
+headers = {
+    "X-Auth-Key": auth_key,
+    "X-Auth-Email": auth_email
+}
+
+# Make a request to the zones API endpoint to get the zone ids
+response = requests.get(BASE_URL, headers=headers)
+
+# Parse the response as JSON
+data = response.json()
+
+# Iterate over the zone ids
+for zone_ids in data["result"]:
+
+    # Get the ID from the current item
+    zone_id = zone_ids["id"]
+    
+    if zone_id == "3f2c4daa43d5920f313654a873b31d06":
+    # Make a request to the firewall rules endpoint with the current ID to get the list of firewall rules
+        page = 1
+        while True:
+            second_api_url = BASE_URL + \
+                f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
+            response = requests.get(second_api_url, headers=headers)
+            data = response.json()
+            # Iterate over the data from the current page of the firewall rules endpoint
+            for firewall_rule_ids in data["result"]:
+
+                # Get the ID from the current item
+                firewall_rule_id = firewall_rule_ids["id"]
+
+                # Make a request to the firewall rules endpoint for the specific ID using the current IDs
+                third_api_url = BASE_URL + \
+                    f"/{zone_id}/firewall/rules/{firewall_rule_id}"
+                response = requests.get(third_api_url, headers=headers)
+                data = response.json()
+                firewall_rule = data.get("result")
+                firewall_rule_transform = {}
+
+                # Extract top-level prop from the firewall rule payload
+                firewall_rule_transform["description"] = firewall_rule["description"]
+                firewall_rule_transform["action"] = firewall_rule["action"]
+                if firewall_rule_transform["action"] == "bypass":
+                    firewall_rule_transform["action"] = "skip"
+
+                # Extract nested objects from the firewall rule payload
+                filter = firewall_rule["filter"]
+                firewall_rule_transform["expression"] = filter["expression"]
+            
+                # Create the object that will contain the "rules" array to be used in custom rules API
+                rules_data = {}
+
+                # Create the "rules" array to be used in the custom rules APi
+                rules_data["rules"] = []
+
+                # Add the firewall rule payloads from before into "rules" array
+                rules_data["rules"].append(firewall_rule_transform)
+
+            # Get list of rulesets from zone
+            rulesets = BASE_URL + \
+                f"/{zone_id}/rulesets"
+            response = requests.get(rulesets, headers=headers)
+            data = response.json()
+
+            # Iterate over the data from
+            for ruleset_ids in data["result"]:
+                if ruleset_ids["phase"] == "http_request_firewall_custom":
+                    ruleset_id = ruleset_ids["id"]
+                
+                    # Get the current rules from the ruleset
+                    ruleset_current = BASE_URL + \
+                        f"/{zone_id}/rulesets/{ruleset_id}"
+                    response = requests.get(ruleset_current, headers=headers)
+                    # print(response.text)
+
+                    # Add the payload from the ruleset to the "rules" array
+                    rulesets_current_payload = response.json()
+                    rules_data["rules"].append(rulesets_current_payload)
+
+                    # Add the final payload to the custom rules API for migration
+                    rulesets_specific_current = BASE_URL + \
+                        f"/{zone_id}/rulesets/{ruleset_id}"
+                    response = requests.put(rulesets_specific_current, headers=headers, json=rules_data)
+                    print(response.text)
+
+            # Check if there are more pages of results
+            if not data["result"]:
+                break
+
+            # Move to the next page of results
+            page += 1
