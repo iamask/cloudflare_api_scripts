@@ -46,7 +46,7 @@ for zone_ids in data["result"]:
                     f"/{zone_id}/firewall/rules/{firewall_rule_id}"
                 response = requests.get(firewall_rules_id_api, headers=headers)
                 data = response.json()
-                firewall_rule = data.get("result")
+                firewall_rule = data["result"]
                 
                 # Create the object that will contain the firewall rules that's been transformed
                 firewall_rule_transform = {}
@@ -98,16 +98,25 @@ for zone_ids in data["result"]:
 
                 # Add the payload from the ruleset to the "rules" array
                 data = response.json()
-                rulesets_current_payload = data.get("result")
+                rulesets_current_payload = data["result"]["rules"]
                 
                 # Extract rules array from rulesets response
                 rulesets_current_payload_transform = {}
-                rulesets_current_payload_transform["rules"] = rulesets_current_payload["rules"]
-                rules_data["rules"].append(rulesets_current_payload_transform)
-                # print(rules_data)
                 
-                # Add the final payload to the custom rules API for migration
-                rulesets_specific_id_api = BASE_URL + \
-                    f"/{zone_id}/rulesets/{ruleset_id}"
-                response = requests.put(rulesets_specific_id_api, headers=headers, json=rules_data)
-                print(response.text)
+                for rule in rulesets_current_payload:
+                    
+                    rulesets_current_payload_transform["action"] = rule["action"]
+                    rulesets_current_payload_transform["expression"] = rule["expression"]
+                    rulesets_current_payload_transform["description"] = rule["description"]
+                    rulesets_current_payload_transform["enabled"] = rule["enabled"]
+                    if rulesets_current_payload_transform["enabled"] == "true":
+                        rulesets_current_payload_transform["enabled"] = "false"
+                    
+                    rules_data["rules"].append(rulesets_current_payload_transform)
+                    # print(rules_data)
+
+                    # Add the final payload to the custom rules API for migration
+                    rulesets_specific_id_api = BASE_URL + \
+                        f"/{zone_id}/rulesets/{ruleset_id}"
+                    response = requests.put(rulesets_specific_id_api, headers=headers, json=rules_data)
+                    print(response.text)
