@@ -35,6 +35,7 @@ for zone_ids in data["result"]:
                 f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
             response = requests.get(firewall_rules_api, headers=headers)
             data = response.json()
+            
             # Iterate over the data from the current page of the firewall rules endpoint
             for firewall_rule_ids in data["result"]:
 
