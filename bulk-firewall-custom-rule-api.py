@@ -45,6 +45,9 @@ for zone_ids in data["result"]:
             response = requests.get(firewall_rules_api, headers=headers)
             data = response.json()
             
+            # Create the object that will contain the firewall rules that's been transformed
+            firewall_rule_transform = {}
+            
             # Iterate over the data from the current page of the firewall rules endpoint
             for firewall_rule_ids in data["result"]:
 
@@ -56,6 +59,8 @@ for zone_ids in data["result"]:
                     f"/{zone_id}/firewall/rules/{firewall_rule_id}"
                 response = requests.get(firewall_rules_id_api, headers=headers)
                 data = response.json()
+                
+                # Get the object from the result payload
                 firewall_rule = data["result"]
                 
                 # Extract top-level prop from the firewall rule payload
@@ -69,10 +74,16 @@ for zone_ids in data["result"]:
                 # Extract nested objects from the firewall rule payload
                 filters = firewall_rule["filter"]
                 firewall_rule_transform["expression"] = filters["expression"]
-
+                firewall_rule_transform["enabled"] = filters["paused"]
+                
+                # Set rule to enabled: true
+                if filters["paused"] == "false":
+                    firewall_rule_transform["enabled"] = "true"
+                if filters["paused"] == "true":
+                    firewall_rule_transform["enabled"] = "false"
+                    
                 # Add the firewall rule objects from before into "rules" array
                 rules_data["rules"].append(firewall_rule_transform)
-                print(rules_data)
                 
             # Check if there are more pages of results
             if not data["result"]:
@@ -80,9 +91,6 @@ for zone_ids in data["result"]:
 
             # Move to the next page of results
             page += 1
-                
-        # Create the object that will contain the firewall rules that's been transformed
-        firewall_rule_transform = {}
                         
         # Get list of rulesets from zone
         rulesets_api = BASE_URL + \
@@ -102,26 +110,34 @@ for zone_ids in data["result"]:
                 rulesets_id_api = BASE_URL + \
                     f"/{zone_id}/rulesets/{ruleset_id}"
                 response = requests.get(rulesets_id_api, headers=headers)
-                # print(response.text)
 
                 # Add the payload from the ruleset to the "rules" array
                 data = response.json()
-                rulesets_current_payload = data["result"]["rules"]
                 
-                # Iterate list items in list to create new list and append to the current list with the transformed firewall rules
-                for rule in rulesets_current_payload:
-                    rulesets_current_payload_transform["action"] = rule["action"]
-                    rulesets_current_payload_transform["expression"] = rule["expression"]
-                    rulesets_current_payload_transform["description"] = rule["description"]
-                    rulesets_current_payload_transform["enabled"] = rule["enabled"]
-                    if rulesets_current_payload_transform["enabled"] == "true":
-                        rulesets_current_payload_transform["enabled"] = "false"
-                    
-                    # Add current custom rules to the list
-                    rules_data["rules"].append(rulesets_current_payload_transform)
+                # If fresh migration, therefore custom rules is empty
+                for rules in data:
+                    if "rules" not in rules:
+                        
+                        # Add the final payload to the custom rules API for migration
+                        rulesets_specific_id_api = BASE_URL + \
+                            f"/{zone_id}/rulesets/{ruleset_id}"
+                        response = requests.put(rulesets_specific_id_api, headers=headers, json=rules_data)
+                    else:
+                        rulesets_current_payload = data["result"]["rules"]
+        
+                        # Iterate list items in list to create new list and append to the current list with the transformed firewall rules
+                        for rule in rulesets_current_payload:
+                            rulesets_current_payload_transform["action"] = rule["action"]
+                            rulesets_current_payload_transform["expression"] = rule["expression"]
+                            rulesets_current_payload_transform["description"] = rule["description"]
+                            rulesets_current_payload_transform["enabled"] = rule["enabled"]
+                            # if rulesets_current_payload_transform["enabled"] == "true":
+                            #     rulesets_current_payload_transform["enabled"] = "false"
+                            
+                            # Add current custom rules to the list
+                            rules_data["rules"].append(rulesets_current_payload_transform)
 
-                    # Add the final payload to the custom rules API for migration
-                    rulesets_specific_id_api = BASE_URL + \
-                        f"/{zone_id}/rulesets/{ruleset_id}"
-                    response = requests.put(rulesets_specific_id_api, headers=headers, json=rules_data)
-                    print(response.text)
+                            # Add the final payload to the custom rules API for migration
+                            rulesets_specific_id_api = BASE_URL + \
+                                f"/{zone_id}/rulesets/{ruleset_id}"
+                            response = requests.put(rulesets_specific_id_api, headers=headers, json=rules_data)
