@@ -80,15 +80,15 @@ for zone_ids in data["result"]:
 
             # Move to the next page of results
             page += 1
-
-        # Extract rules array from rulesets response
-        rulesets_current_payload_transform = {}
                 
         # Get list of rulesets from zone
         rulesets_api = BASE_URL + \
             f"/{zone_id}/rulesets"
         response = requests.get(rulesets_api, headers=headers)
         data = response.json()
+        
+        # Extract rules array from rulesets response
+        rulesets_current_payload_transform = {}
 
         # Iterate over the data from
         for ruleset_ids in data["result"]:
