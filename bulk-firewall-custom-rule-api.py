@@ -21,6 +21,12 @@ response = requests.get(BASE_URL, headers=headers)
 # Parse the response as JSON
 data = response.json()
 
+# Create the object that will contain the "rules" array to be used in custom rules API
+rules_data = {}
+
+# Create the "rules" array to be used in the custom rules API
+rules_data["rules"] = []
+    
 # Iterate over the zone ids
 for zone_ids in data["result"]:
 
@@ -28,12 +34,6 @@ for zone_ids in data["result"]:
     zone_id = zone_ids["id"]
     
     if zone_id == "3f2c4daa43d5920f313654a873b31d06":
-        
-        # Create the object that will contain the "rules" array to be used in custom rules API
-        rules_data = {}
-
-        # Create the "rules" array to be used in the custom rules API
-        rules_data["rules"] = []
         
         # Start pagination while loop
         page = 1
@@ -47,7 +47,7 @@ for zone_ids in data["result"]:
             
             # Create the object that will contain the firewall rules that's been transformed
             firewall_rule_transform = {}
-            
+
             # Iterate over the data from the current page of the firewall rules endpoint
             for firewall_rule_ids in data["result"]:
 
@@ -82,7 +82,7 @@ for zone_ids in data["result"]:
                 if filters["paused"] == "true":
                     firewall_rule_transform["enabled"] = "false"
                     
-                # Add the firewall rule objects from before into "rules" array
+                # Add the firewall rule objects from before into "rules" array in the ruleset
                 rules_data["rules"].append(firewall_rule_transform)
                 
             # Check if there are more pages of results
@@ -91,7 +91,7 @@ for zone_ids in data["result"]:
 
             # Move to the next page of results
             page += 1
-                        
+            
         # Get list of rulesets from zone
         rulesets_api = BASE_URL + \
             f"/{zone_id}/rulesets"
