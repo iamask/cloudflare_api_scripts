@@ -35,9 +35,6 @@ for zone_ids in data["result"]:
         # Create the "rules" array to be used in the custom rules API
         rules_data["rules"] = []
         
-        # Create the object that will contain the firewall rules that's been transformed
-        firewall_rule_transform = {}
-        
         # Start pagination while loop
         page = 1
         while True:
@@ -84,6 +81,9 @@ for zone_ids in data["result"]:
             # Move to the next page of results
             page += 1
                 
+        # Create the object that will contain the firewall rules that's been transformed
+        firewall_rule_transform = {}
+                        
         # Get list of rulesets from zone
         rulesets_api = BASE_URL + \
             f"/{zone_id}/rulesets"
