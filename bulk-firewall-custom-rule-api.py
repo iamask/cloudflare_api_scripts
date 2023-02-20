@@ -34,8 +34,14 @@ for zone_ids in data["result"]:
 
         # Create the "rules" array to be used in the custom rules API
         rules_data["rules"] = []
+        
+        # Create the object that will contain the firewall rules that's been transformed
+        firewall_rule_transform = {}
+        
+        # Start pagination while loop
         page = 1
         while True:
+            
             # Make a request to the firewall rules endpoint with the current ID to get the list of firewall rules
             firewall_rules_api = BASE_URL + \
                 f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
@@ -54,9 +60,6 @@ for zone_ids in data["result"]:
                 response = requests.get(firewall_rules_id_api, headers=headers)
                 data = response.json()
                 firewall_rule = data["result"]
-                
-                # Create the object that will contain the firewall rules that's been transformed
-                firewall_rule_transform = {}
                 
                 # Extract top-level prop from the firewall rule payload
                 firewall_rule_transform["description"] = firewall_rule["description"]
@@ -87,7 +90,7 @@ for zone_ids in data["result"]:
         response = requests.get(rulesets_api, headers=headers)
         data = response.json()
         
-        # Extract rules array from rulesets response
+        # Create object for the transformed rules in the rulesets
         rulesets_current_payload_transform = {}
 
         # Iterate over the data from
@@ -105,8 +108,8 @@ for zone_ids in data["result"]:
                 data = response.json()
                 rulesets_current_payload = data["result"]["rules"]
                 
+                # Iterate list items in list to create new list and append to the current list with the transformed firewall rules
                 for rule in rulesets_current_payload:
-                    
                     rulesets_current_payload_transform["action"] = rule["action"]
                     rulesets_current_payload_transform["expression"] = rule["expression"]
                     rulesets_current_payload_transform["description"] = rule["description"]
@@ -114,8 +117,8 @@ for zone_ids in data["result"]:
                     if rulesets_current_payload_transform["enabled"] == "true":
                         rulesets_current_payload_transform["enabled"] = "false"
                     
+                    # Add current custom rules to the list
                     rules_data["rules"].append(rulesets_current_payload_transform)
-                    # print(rules_data)
 
                     # Add the final payload to the custom rules API for migration
                     rulesets_specific_id_api = BASE_URL + \
