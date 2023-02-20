@@ -59,7 +59,7 @@ for zone_ids in data["result"]:
                     f"/{zone_id}/firewall/rules/{firewall_rule_id}"
                 response = requests.get(firewall_rules_id_api, headers=headers)
                 data = response.json()
-                
+
                 # Get the object from the result payload
                 firewall_rule = data["result"]
                 
@@ -79,12 +79,12 @@ for zone_ids in data["result"]:
                 # Set rule to enabled: true
                 if filters["paused"] == "false":
                     firewall_rule_transform["enabled"] = "true"
-                if filters["paused"] == "true":
+                else:
                     firewall_rule_transform["enabled"] = "false"
                     
                 # Add the firewall rule objects from before into "rules" array in the ruleset
                 rules_data["rules"].append(firewall_rule_transform)
-                
+                print(rules_data)
             # Check if there are more pages of results
             if not data["result"]:
                 break
@@ -141,3 +141,4 @@ for zone_ids in data["result"]:
                             rulesets_specific_id_api = BASE_URL + \
                                 f"/{zone_id}/rulesets/{ruleset_id}"
                             response = requests.put(rulesets_specific_id_api, headers=headers, json=rules_data)
+                            print(response.json)

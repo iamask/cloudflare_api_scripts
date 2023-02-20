@@ -41,7 +41,6 @@ for zone_ids in data["result"]:
             empty_payload = {}
             empty_payload["rules"] = []
             
-            print(empty_payload)
             # Put empty payload into ruleset to nuke it
             rulesets_specific_api = BASE_URL + \
                 f"/{zone_id}/rulesets/{ruleset_id}"
