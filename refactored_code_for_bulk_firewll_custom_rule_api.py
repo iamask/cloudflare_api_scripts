@@ -76,7 +76,7 @@ def loop_firewall_rules_pages(BASE_URL, headers):
             
             # Catch error
             if response.status_code != 200:
-                raise Exception(f"Failed to retrieve data from API. Status code: {response.status_code}")
+                raise Exception(f"Failed to retrieve data from List Zones API. Status code: {response.status_code}")
 
             data = response.json()
             
@@ -101,7 +101,7 @@ def get_custom_ruleset_id(BASE_URL, headers):
         response = requests.get(rulesets_api, headers=headers)
         
         if response.status_code != 200:
-            raise Exception(f"Failed to retrieve data from API. Status code: {response.status_code}")
+            raise Exception(f"Failed to retrieve data from List Rulesets API. Status code: {response.status_code}")
 
         data = response.json()
         
@@ -123,7 +123,7 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
         response = requests.get(rulesets_id_api, headers=headers)
 
         if response.status_code != 200:
-            raise Exception(f"Failed to retrieve data from API. Status code: {response.status_code}")
+            raise Exception(f"Failed to retrieve data from List Rulesets API with specific ruleset id. Status code: {response.status_code}")
     
         data = response.json()
         
