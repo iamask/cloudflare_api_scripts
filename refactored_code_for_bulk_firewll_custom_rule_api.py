@@ -123,6 +123,9 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
             rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
             response = requests.get(rulesets_id_api, headers=headers)
 
+            if response.status_code != 200:
+                raise Exception(f"Failed to retrieve data from API. Status code: {response.status_code}")
+        
             data = response.json()
             
             # Transform data
