@@ -8,6 +8,11 @@ BASE_URL = "https://api.cloudflare.com/client/v4/zones"
 auth_email = os.environ.get('CLOUDFLARE_EMAIL')
 auth_key = os.environ.get('CLOUDFLARE_API_KEY')
 
+# Page params
+params = {
+    "page": 1,
+    "per_page": 1000
+}
 
 # Set headers
 headers = {
@@ -15,8 +20,9 @@ headers = {
     "X-Auth-Email": auth_email
 }
 
+
 # Make a request to the zones API endpoint to get the zone ids
-response = requests.get(BASE_URL, headers=headers)
+response = requests.get(BASE_URL, headers=headers, params=params)
 
 # Parse the response as JSON
 data = response.json()
