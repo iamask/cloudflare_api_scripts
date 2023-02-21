@@ -117,18 +117,19 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
     
     custom_ruleset = []
     for zone_id in zone_ids:
-        if zone_id == "3f2c4daa43d5920f313654a873b31d06": 
         
-            # Get the current rules from the custom ruleset
-            rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
-            response = requests.get(rulesets_id_api, headers=headers)
+        # Get the current rules from the custom ruleset
+        rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
+        response = requests.get(rulesets_id_api, headers=headers)
 
-            if response.status_code != 200:
-                raise Exception(f"Failed to retrieve data from API. Status code: {response.status_code}")
+        if response.status_code != 200:
+            raise Exception(f"Failed to retrieve data from API. Status code: {response.status_code}")
+    
+        data = response.json()
         
-            data = response.json()
+        if not data["result"]:
             
-            # Transform data
+        # Transform data
             for rule in data["result"]["rules"]:
                 current_custom_ruleset = {}
                 current_custom_ruleset["action"] = rule["action"]
@@ -136,7 +137,7 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
                 current_custom_ruleset["description"] = rule["description"]
                 current_custom_ruleset["enabled"] = rule["enabled"]
                 custom_ruleset.append(current_custom_ruleset)
-                    
+                
     return custom_ruleset
 
 def prepare_firewall_rules_for_migration(BASE_URL, headers):
