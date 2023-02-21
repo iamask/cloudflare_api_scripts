@@ -21,8 +21,7 @@ def loop_zone_id_pages(BASE_URL, headers):
     page = 1
     while True:
         # Make a request to the zones API endpoint to get the zone ids
-        response = requests.get(BASE_URL+ \
-                f"?page={page}&per_page=1000", headers=headers)
+        response = requests.get(BASE_URL+ f"?page={page}&per_page=1000", headers=headers)
         
         # Catch error
         if response.status_code != 200:
@@ -37,7 +36,7 @@ def loop_zone_id_pages(BASE_URL, headers):
         # Add all zone_ids into list
         raw_zone_id_list.extend(raw_zone_ids)
         
-        if not data["result"]:
+        if not raw_zone_ids:
             break
         page += 1
 
