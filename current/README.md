@@ -8,7 +8,7 @@
 ## API Keys/Tokens
 The zone IDs used will depend on the scope of your API key, if you're a member of many orgs, then it'll run for any zones that are compatible. Also, the scripts assumes you have these keys set as environment variables in your shell of choice.
 
-If you want to run scoped tokens instead, feel free to create a branch and change out the header variables to account for scoped tokens.
+If you want to run scoped tokens instead, feel free to `git checkout -b <new_branch>` and change out the header variables to account for scoped tokens.
 
 So instead of:
 
