@@ -61,7 +61,7 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
 
     return zone_id_list
 
-def delete_firewall_rule_by_description(BASE_URL, headers, description):
+def delete_firewall_rule_by_description(BASE_URL, headers):
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
     for zone_ids in zone_ids:
 
