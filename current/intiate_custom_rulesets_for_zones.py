@@ -70,6 +70,8 @@ def intiate_custom_ruleset_for_new_zones(BASE_URL, headers):
     for zone_id in zone_ids:
         create_new_custom_ruleset = BASE_URL + f"/{zone_id}/rulesets/phases/http_request_firewall_custom/entrypoint"
         response = requests.put(create_new_custom_ruleset, headers=headers, json=empty_payload)
+        
+        # Not all zones may have the ability to create custom rules
         if response.status_code == 404:
             continue
         if response.status_code != 200:
