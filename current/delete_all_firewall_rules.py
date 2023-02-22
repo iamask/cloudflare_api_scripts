@@ -71,7 +71,7 @@ def delete_firewall_rules(BASE_URL, headers):
             firewall_rules_api = BASE_URL + f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
             response = requests.get(firewall_rules_api, headers=headers)
             data = response.json()
-            print(data)
+            
             # Iterate over the data from the current page of the second API
             for firewall_rule_ids in data["result"]:
                     
