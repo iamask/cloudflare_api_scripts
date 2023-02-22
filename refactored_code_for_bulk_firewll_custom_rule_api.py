@@ -117,7 +117,7 @@ def intiate_custom_ruleset_for_new_zones(BASE_URL, headers):
     new_custom_ruleset = { "name": "Default", "kind": "zone", "source": "firewall_custom", "phase": "http_request_firewall_custom", "rules": [] }
     
     for zone_id in zone_ids:
-        create_new_custom_ruleset = BASE_URL + f"/{zone_id}/rulesets/phases"
+        create_new_custom_ruleset = BASE_URL + f"/{zone_id}/rulesets"
         response = requests.put(create_new_custom_ruleset, headers=headers, data=new_custom_ruleset)
         if response.status_code == 404:
             continue
