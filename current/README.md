@@ -10,6 +10,23 @@ The zone IDs used will depend on the scope of your API key, if you're a member o
 
 If you want to run scoped tokens instead, feel free to create a branch and change out the header variables to account for scoped tokens.
 
+So instead of:
+
+```
+headers = {
+    "X-Auth-Key": auth_key,
+    "X-Auth-Email": auth_email
+}
+```
+
+Use
+
+```
+headers = {
+    "Authorization: f"Bearer {token}
+}
+```
+
 These should be the necessary ones:
 - `Account - Firewall Access - Edit`
 - `Account - Account Settings - Edit`
