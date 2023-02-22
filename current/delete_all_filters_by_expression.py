@@ -94,3 +94,5 @@ def delete_all_filters_by_ip_list(BASE_URL, headers, filter):
                 break
             # Move to the next page of results
             page += 1
+
+delete_all_filters_by_ip_list(BASE_URL, headers, filter)

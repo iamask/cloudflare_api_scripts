@@ -14,6 +14,8 @@ headers = {
     "X-Auth-Email": auth_email
 }
 
+phase = input("Enter phase to delete: ")
+
 def loop_zone_id_pages(BASE_URL, headers):
     
 # Set array of list of zone ids
@@ -60,7 +62,7 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
 
     return zone_id_list
 
-def delete_current_ruleset(BASE_URL, headers):
+def delete_rules_current_ruleset(BASE_URL, headers, phase):
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
     
     # Iterate over the data from the first API
@@ -73,25 +75,16 @@ def delete_current_ruleset(BASE_URL, headers):
         
         # Iterate over the data from the rulesets API and filter for custom rules ruleset
         for rulesets_ids in data["result"]:
-            if rulesets_ids["phase"] == "http_request_firewall_custom":
+            if rulesets_ids["phase"] == phase:
                 ruleset_id = rulesets_ids["id"]
                 
                 empty_payload = {}
                 empty_payload["rules"] = []
                 
                 # Put empty payload into ruleset to nuke it
-                rulesets_specific_api = BASE_URL + \
-                    f"/{zone_id}/rulesets/{ruleset_id}"
+                rulesets_specific_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
                 response = requests.put(rulesets_specific_api, headers=headers, json=empty_payload)
                 data = response.json()
                 print(data)
-                # # Iterate over the rule ids
-                # for rulesets_rules_id in data["result"]["rules"]:
-                #     for rule_id in rulesets_rules_id["id"]:
-                #         rule_id = rulesets_rules_id["id"]
-                    
-                #     # Nuke the rules in the ruleset (I suppose you could also just PUT an empty payload)
-                #     rulesets_specific_versions_api = BASE_URL + \
-                #         f"/{zone_id}/rulesets/{ruleset_id}/rules/{rule_id}"
-                #     response = requests.delete(rulesets_specific_versions_api, headers=headers)
-                #     print(response.text)
+                
+delete_rules_current_ruleset(BASE_URL, headers, phase)

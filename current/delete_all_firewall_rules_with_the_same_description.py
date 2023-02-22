@@ -66,7 +66,7 @@ def delete_firewall_rule_by_description(BASE_URL, headers, description):
     for zone_ids in zone_ids:
 
         # Get the ID from the current item
-        zone_id = zone_ids["id"]
+        zone_id = zone_ids
 
         # Make a request to the second API endpoint for the current ID
         page = 1
@@ -94,3 +94,5 @@ def delete_firewall_rule_by_description(BASE_URL, headers, description):
 
             # Move to the next page of results
             page += 1
+            
+delete_firewall_rule_by_description(BASE_URL, headers, description)
