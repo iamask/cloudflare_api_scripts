@@ -111,6 +111,21 @@ def get_custom_ruleset_id(BASE_URL, headers):
         
     return ruleset_id
 
+def intiate_custom_ruleset_for_new_zones(BASE_URL, headers):
+    
+    zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
+    new_custom_ruleset = { "name": "Default", "kind": "custom", "phase": "http_request_firewall_custom" }
+        
+    for zone_id in zone_ids:
+        create_new_custom_ruleset = BASE_URL + f"/{zone_id}/rulesets"
+        response = requests.post(create_new_custom_ruleset, headers=headers, json=new_custom_ruleset)
+        if response.status_code == 404:
+            continue
+        if response.status_code != 200:
+            raise Exception(f"Failed to create new custom ruleset. Status code: {response.status_code}") 
+
+    return response
+
 def get_current_custom_ruleset_data(BASE_URL, headers):
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
     ruleset_id = get_custom_ruleset_id(BASE_URL, headers)
@@ -121,12 +136,8 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
         rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
         response = requests.get(rulesets_id_api, headers=headers)
 
-        new_custom_ruleset = { "name": "Default", "kind": "custom", "phase": "http_request_firewall_custom" }
         if response.status_code == 404:
-            create_new_custom_ruleset = BASE_URL + f"/{zone_id}/rulesets"
-            response = requests.post(create_new_custom_ruleset, headers=headers, json=new_custom_ruleset)
-            if response.status_code == 404:
-                continue
+            continue
         if response.status_code != 200:
             raise Exception(f"Failed to retrieve data from List Rulesets API with specific ruleset id. Status code: {response.status_code}") 
     
