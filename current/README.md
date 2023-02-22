@@ -49,5 +49,8 @@ These should be the necessary ones:
 
 This ensures that when you migrate it has something to add all the rules and you won't error out.
 
+## If you change your mind, run:
+```python3 delete_all_rules_in_a_ruleset.py```
+
 ## Once tested and ready to move off Firewall Rules entirely, run:
 ```python3 delete_all_firewall_rules.py```
