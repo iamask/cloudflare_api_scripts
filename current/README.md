@@ -21,6 +21,7 @@ These should be the necessary ones:
 
 ### If no Custom Rules have been made before, run:
 ```python3 initiate_custom_rulesets_for_zones.py``` 
+
 This ensures that when you migrate it has something to add all the rules and you won't error out.
 
 ### Once tested and ready to move off Firewall Rules entirely, run:
