@@ -60,6 +60,3 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
         zone_id_list.append(zone_id)
 
     return zone_id_list
-
-def loop_in_zone_id_into_migrate(BASE_URL, headers, zone_id):
-    migrate_functions(zone_id)

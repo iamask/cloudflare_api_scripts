@@ -60,6 +60,7 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
 
     return zone_id_list
 
+
 def intiate_custom_ruleset_for_new_zones(BASE_URL, headers):
     
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
@@ -107,10 +108,13 @@ def loop_firewall_rules_pages(BASE_URL, headers):
                 
     return raw_firewall_rules_data
 
+print(loop_firewall_rules_pages(BASE_URL, headers))
+
 def get_custom_ruleset_ids(BASE_URL, headers):
     
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
     
+    ruleset_id_list = []
     for zone_id in zone_ids:
         
         # Get list of rulesets from zone
@@ -125,15 +129,16 @@ def get_custom_ruleset_ids(BASE_URL, headers):
         for ruleset_ids in data["result"]:
             if ruleset_ids["phase"] == "http_request_firewall_custom":
                 ruleset_id = ruleset_ids["id"]
+                ruleset_id_list.append(ruleset_id)
         
-    return ruleset_id
+    return ruleset_id_list
 
 def get_current_custom_ruleset_data(BASE_URL, headers):
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
-    ruleset_id = get_custom_ruleset_ids(BASE_URL, headers)
+    ruleset_ids = get_custom_ruleset_ids(BASE_URL, headers)
     
     custom_ruleset = []
-    for zone_id in zone_ids:
+    for zone_id, ruleset_id in zip(zone_ids, ruleset_ids):
         # Get the current rules from the custom ruleset
         rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
         response = requests.get(rulesets_id_api, headers=headers)
@@ -193,17 +198,17 @@ def combine_and_migrate(BASE_URL, headers):
     current_custom_rules = get_current_custom_ruleset_data(BASE_URL, headers)
     firewall_rules = prepare_firewall_rules_for_migration(BASE_URL, headers)
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
-    ruleset_id = get_custom_ruleset_ids(BASE_URL, headers)
+    ruleset_ids = get_custom_ruleset_ids(BASE_URL, headers)
     
     migrate = firewall_rules + current_custom_rules
     
     payload = {}
     payload["rules"] = migrate
     
-    for zone_id in zone_ids:
+    for zone_id, ruleset_id, rules in zip(zone_ids, ruleset_ids, migrate):
         # Get the current rules from the custom ruleset
         rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
-        response = requests.put(rulesets_id_api, headers=headers, json=payload)
+        response = requests.put(rulesets_id_api, headers=headers, json=rules)
         
         if response.status_code in [404, 400]:
             continue
