@@ -41,13 +41,13 @@ These should be the necessary ones:
 - `Zone - Firewall Service - Edit`
 - `Zone - Zone WAF - Edit`
 
-## Run the script:
-```python3 migrate_firewall_rules_to_custom_rules.py```
-
 ## If no Custom Rules have been made before, run:
 ```python3 initiate_custom_rulesets_for_zones.py``` 
 
 This ensures that when you migrate it has something to add all the rules and you won't error out.
+
+## Run the script:
+```python3 migrate_firewall_rules_to_custom_rules.py```
 
 ## If you change your mind, run:
 ```python3 delete_all_rules_in_a_ruleset.py```
