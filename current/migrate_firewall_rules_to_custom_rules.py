@@ -20,6 +20,7 @@ def loop_zone_id_pages(BASE_URL, headers):
     raw_zone_id_list = []
     page = 1
     while True:
+        
         # Make a request to the zones API endpoint to get the zone ids
         response = requests.get(BASE_URL+ f"?page={page}&per_page=1000", headers=headers)
         
@@ -60,14 +61,16 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
 
     return zone_id_list
 
+# Initiate list for "for loop"
 zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
 
 def loop_firewall_rules_pages(BASE_URL, headers, zone_id):
     
     # Set array of list of firewall rules
     raw_firewall_rules_data = []
-    page = 1
     
+    # Set page to loop
+    page = 1
     while True:
 
         # Make a request to the firewall rules endpoint with the current ID to get the list of firewall rules
@@ -81,6 +84,8 @@ def loop_firewall_rules_pages(BASE_URL, headers, zone_id):
         data = response.json()
         
         firewall_rules = data["result"]
+        
+        # Add lists to new list
         raw_firewall_rules_data.extend(firewall_rules)
         
         if not firewall_rules:
@@ -92,7 +97,10 @@ def loop_firewall_rules_pages(BASE_URL, headers, zone_id):
 
 def prepare_firewall_rules_for_migration(BASE_URL, headers, zone_id):
     
+    # Instantiate new list
     new_custom_rules_list = []
+    
+    # Call raw firewall rules data
     raw_firewall_rules_data = loop_firewall_rules_pages(BASE_URL, headers, zone_id)
     
     for firewall_rule in raw_firewall_rules_data:
@@ -140,7 +148,10 @@ def get_custom_ruleset_ids(BASE_URL, headers, zone_id):
 
 def get_current_custom_ruleset_data(BASE_URL, headers, zone_id):
     
+    # Getting the ruleset ID per zone that's looped in
     ruleset_id = get_custom_ruleset_ids(BASE_URL, headers, zone_id)
+    
+    # Instantiate new list
     custom_ruleset = []
 
     # Get the current rules from the custom ruleset
@@ -161,6 +172,8 @@ def get_current_custom_ruleset_data(BASE_URL, headers, zone_id):
             current_custom_ruleset["expression"] = rule["expression"]
             current_custom_ruleset["description"] = rule["description"]
             current_custom_ruleset["enabled"] = rule["enabled"]
+            
+            # Add data to new list
             custom_ruleset.append(current_custom_ruleset)
                     
     return custom_ruleset
@@ -170,20 +183,26 @@ def combine_and_migrate(BASE_URL, headers, zone_id):
     firewall_rules = prepare_firewall_rules_for_migration(BASE_URL, headers, zone_id)
     ruleset_id = get_custom_ruleset_ids(BASE_URL, headers, zone_id)
     
+    # Combine old and new
     migrate = firewall_rules + current_custom_rules
     
+    # Instantiate object
     payload = {}
+    
+    # Set up payload
     payload["rules"] = migrate
     
     # Get the current rules from the custom ruleset
     rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
     response = requests.put(rulesets_id_api, headers=headers, json=payload)
     print(response)
+    
     if response.status_code != 200:
         raise Exception(f"Failed to add data to Rulesets API with specific ruleset id. Status code: {response.status_code}")
     
     return response
 
+# Run the loop
 for zone_id in zone_ids:
     loop_firewall_rules_pages(BASE_URL, headers, zone_id)
     prepare_firewall_rules_for_migration(BASE_URL, headers, zone_id)
