@@ -63,10 +63,7 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
 
 def delete_firewall_rule_by_description(BASE_URL, headers):
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
-    for zone_ids in zone_ids:
-
-        # Get the ID from the current item
-        zone_id = zone_ids
+    for zone_id in zone_ids:
 
         # Make a request to the second API endpoint for the current ID
         page = 1
