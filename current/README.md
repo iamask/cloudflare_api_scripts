@@ -13,6 +13,9 @@ If you want to run scoped tokens instead, feel free to create a branch and chang
 So instead of:
 
 ```
+auth_email = os.environ.get('CLOUDFLARE_EMAIL')
+auth_key = os.environ.get('CLOUDFLARE_API_KEY')
+
 headers = {
     "X-Auth-Key": auth_key,
     "X-Auth-Email": auth_email
@@ -22,10 +25,14 @@ headers = {
 Use
 
 ```
+token = os.environ.get("CLOUDFLARE_API_TOKEN")
+
 headers = {
     "Authorization: f"Bearer {token}
 }
 ```
+
+Of course, use the actual names you've set them as.
 
 These should be the necessary ones:
 - `Account - Firewall Access - Edit`
