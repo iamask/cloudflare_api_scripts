@@ -14,8 +14,6 @@ headers = {
     "X-Auth-Email": auth_email
 }
 
-filter = input("Enter filter description: ")
-
 def loop_zone_id_pages(BASE_URL, headers):
     
 # Set array of list of zone ids
@@ -62,35 +60,38 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
 
     return zone_id_list
 
-def delete_all_filters_by_ip_list(BASE_URL, headers, filter):
+def delete_current_ruleset(BASE_URL, headers):
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
+    
     # Iterate over the data from the first API
     for zone_id in zone_ids:
 
-        # Make a request to the second API endpoint for the current ID
-        page = 1
-        while True:
-            # Get filters
-            filters_api = BASE_URL + f"/{zone_id}/filters?page={page}&per_page=1000"
-            response = requests.get(filters_api, headers=headers)
-            data = response.json()
-            
-            # Iterate over the data from the current page of the filters API
-            for filters in data["result"]:
-
-                # Check if the filter matches the expression 
-                if filter in filters["expression"]:
+        # Call the rulesets API
+        rulesets_api = BASE_URL + f"/{zone_id}/rulesets"
+        response = requests.get(rulesets_api, headers=headers)
+        data = response.json()
+        
+        # Iterate over the data from the rulesets API and filter for custom rules ruleset
+        for rulesets_ids in data["result"]:
+            if rulesets_ids["phase"] == "http_request_firewall_custom":
+                ruleset_id = rulesets_ids["id"]
+                
+                empty_payload = {}
+                empty_payload["rules"] = []
+                
+                # Put empty payload into ruleset to nuke it
+                rulesets_specific_api = BASE_URL + \
+                    f"/{zone_id}/rulesets/{ruleset_id}"
+                response = requests.put(rulesets_specific_api, headers=headers, json=empty_payload)
+                data = response.json()
+                print(data)
+                # # Iterate over the rule ids
+                # for rulesets_rules_id in data["result"]["rules"]:
+                #     for rule_id in rulesets_rules_id["id"]:
+                #         rule_id = rulesets_rules_id["id"]
                     
-                    # Get the ID from the current item
-                    filters_id = filters["id"]
-                    
-                    # Make a request to the filters API endpoint for the current IDs
-                    filters_id_api = BASE_URL + f"/{zone_id}/filters/{filters_id}"
-                    response = requests.get(filters_id_api, headers=headers)
-                    print(response.text)
-
-            # Check if there are more pages of results
-            if not data["result"]:
-                break
-            # Move to the next page of results
-            page += 1
+                #     # Nuke the rules in the ruleset (I suppose you could also just PUT an empty payload)
+                #     rulesets_specific_versions_api = BASE_URL + \
+                #         f"/{zone_id}/rulesets/{ruleset_id}/rules/{rule_id}"
+                #     response = requests.delete(rulesets_specific_versions_api, headers=headers)
+                #     print(response.text)

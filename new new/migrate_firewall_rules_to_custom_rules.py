@@ -178,7 +178,7 @@ def combine_and_migrate(BASE_URL, headers, zone_id):
     # Get the current rules from the custom ruleset
     rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
     response = requests.put(rulesets_id_api, headers=headers, json=payload)
-    
+    print(response)
     if response.status_code != 200:
         raise Exception(f"Failed to add data to Rulesets API with specific ruleset id. Status code: {response.status_code}")
     

@@ -1,6 +1,5 @@
 import os
 import requests
-import subprocess
 
 # Base endpoint for Cloudflare's API for zones
 BASE_URL = "https://api.cloudflare.com/client/v4/zones"
@@ -14,6 +13,7 @@ headers = {
     "X-Auth-Key": auth_key,
     "X-Auth-Email": auth_email
 }
+description = input("Enter description of rule: ")
 
 def loop_zone_id_pages(BASE_URL, headers):
     
@@ -60,3 +60,37 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
         zone_id_list.append(zone_id)
 
     return zone_id_list
+
+def delete_firewall_rule_by_description(BASE_URL, headers, description):
+    zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
+    for zone_ids in zone_ids:
+
+        # Get the ID from the current item
+        zone_id = zone_ids["id"]
+
+        # Make a request to the second API endpoint for the current ID
+        page = 1
+        while True:
+            firewall_rules_api = BASE_URL + f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
+            response = requests.get(firewall_rules_api, headers=headers)
+            data = response.json()
+            
+            # Iterate over the data from the current page of the second API
+            for firewall_rule_ids in data["result"]:
+
+                # Check if the item's description matches the desired value
+                if firewall_rule_ids["description"] == description:
+                    
+                    # Get the ID from the current item
+                    firewall_rule_id = firewall_rule_ids["id"]
+
+                    # Make a request to the third API endpoint for the current IDs
+                    firewall_rules_id_api = BASE_URL + f"/{zone_id}/firewall/rules/{firewall_rule_id}"
+                    response = requests.delete(firewall_rules_id_api, headers=headers)
+                    print(response.text)
+            # Check if there are more pages of results
+            if not data["result"]:
+                break
+
+            # Move to the next page of results
+            page += 1
