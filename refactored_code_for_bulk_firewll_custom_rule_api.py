@@ -117,13 +117,14 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
     
     custom_ruleset = []
     for zone_id in zone_ids:
-        
         # Get the current rules from the custom ruleset
         rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
         response = requests.get(rulesets_id_api, headers=headers)
 
+        if response.status_code == 404:
+            continue
         if response.status_code != 200:
-            raise Exception(f"Failed to retrieve data from List Rulesets API with specific ruleset id. Status code: {response.status_code}")
+            raise Exception(f"Failed to retrieve data from List Rulesets API with specific ruleset id. Status code: {response.status_code}") 
     
         data = response.json()
         
@@ -137,8 +138,8 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
                 current_custom_ruleset["description"] = rule["description"]
                 current_custom_ruleset["enabled"] = rule["enabled"]
                 custom_ruleset.append(current_custom_ruleset)
-                
-    return custom_ruleset
+                    
+        return custom_ruleset
 
 def prepare_firewall_rules_for_migration(BASE_URL, headers):
     
@@ -171,4 +172,23 @@ def prepare_firewall_rules_for_migration(BASE_URL, headers):
     
     return new_custom_rules_list
 
-print(prepare_firewall_rules_for_migration(BASE_URL, headers))
+def combine_and_migrate(BASE_URL, headers):
+    current_custom_rules = get_current_custom_ruleset_data(BASE_URL, headers)
+    firewall_rules = prepare_firewall_rules_for_migration(BASE_URL, headers)
+    zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
+    ruleset_id = get_custom_ruleset_id(BASE_URL, headers)
+    
+    migrate = firewall_rules + current_custom_rules
+    
+    for zone_id in zone_ids:
+        # Get the current rules from the custom ruleset
+        rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
+        response = requests.put(rulesets_id_api, headers=headers, json=migrate)
+        
+        if response.status_code in [404, 400]:
+            continue
+        if response.status_code != 200:
+            raise Exception(f"Failed to retrieve data from List Rulesets API with specific ruleset id. Status code: {response.status_code}") 
+    
+    return response 
+print(combine_and_migrate(BASE_URL, headers))
