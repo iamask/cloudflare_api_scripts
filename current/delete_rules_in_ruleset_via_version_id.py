@@ -92,4 +92,6 @@ def delete_rules_in_ruleset(BASE_URL, headers, phase):
                     response = requests.delete(rulesets_specific_versions_api, headers=headers)
                     print(response.text)
                     
+    return response
+                    
 delete_rules_in_ruleset(BASE_URL, headers, phase)

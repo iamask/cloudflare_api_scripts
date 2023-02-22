@@ -92,4 +92,6 @@ def delete_firewall_rule_by_description(BASE_URL, headers, description):
             # Move to the next page of results
             page += 1
             
+    return response
+            
 delete_firewall_rule_by_description(BASE_URL, headers, description)

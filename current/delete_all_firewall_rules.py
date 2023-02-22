@@ -60,8 +60,8 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
         zone_id_list.append(zone_id)
 
     return zone_id_list
-
-def delete_firewall_rule_by_description(BASE_URL, headers):
+      
+def delete_firewall_rules(BASE_URL, headers):
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
     for zone_id in zone_ids:
 
@@ -71,7 +71,7 @@ def delete_firewall_rule_by_description(BASE_URL, headers):
             firewall_rules_api = BASE_URL + f"/{zone_id}/firewall/rules?page={page}&per_page=1000"
             response = requests.get(firewall_rules_api, headers=headers)
             data = response.json()
-            
+            print(data)
             # Iterate over the data from the current page of the second API
             for firewall_rule_ids in data["result"]:
                     
@@ -89,3 +89,5 @@ def delete_firewall_rule_by_description(BASE_URL, headers):
 
             # Move to the next page of results
             page += 1
+            
+    return response

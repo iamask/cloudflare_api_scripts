@@ -85,6 +85,7 @@ def delete_rules_current_ruleset(BASE_URL, headers, phase):
                 rulesets_specific_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
                 response = requests.put(rulesets_specific_api, headers=headers, json=empty_payload)
                 data = response.json()
-                print(data)
+                
+    return response
                 
 delete_rules_current_ruleset(BASE_URL, headers, phase)
