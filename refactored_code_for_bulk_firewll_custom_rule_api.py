@@ -93,6 +93,8 @@ def loop_firewall_rules_pages(BASE_URL, headers):
 def get_custom_ruleset_id(BASE_URL, headers):
     
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
+    # Set array for only zone IDs
+    ruleset_id_list = []
     
     for zone_id in zone_ids:
         
@@ -108,17 +110,22 @@ def get_custom_ruleset_id(BASE_URL, headers):
         for ruleset_ids in data["result"]:
             if ruleset_ids["phase"] == "http_request_firewall_custom":
                 ruleset_id = ruleset_ids["id"]
+                ruleset_id_list.append(ruleset_id)
+            else:
+                break
         
-    return ruleset_id
+    return ruleset_id_list
 
 def intiate_custom_ruleset_for_new_zones(BASE_URL, headers):
     
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
-    new_custom_ruleset = { "name": "Default", "kind": "zone", "source": "firewall_custom", "phase": "http_request_firewall_custom", "rules": [] }
     
+    empty_payload = {}
+    empty_payload["rules"] = []   
+     
     for zone_id in zone_ids:
-        create_new_custom_ruleset = BASE_URL + f"/{zone_id}/rulesets"
-        response = requests.put(create_new_custom_ruleset, headers=headers, data=new_custom_ruleset)
+        create_new_custom_ruleset = BASE_URL + f"/{zone_id}/rulesets/phases/http_request_firewall_custom/entrypoint"
+        response = requests.put(create_new_custom_ruleset, headers=headers, json=empty_payload)
         if response.status_code == 404:
             continue
         if response.status_code != 200:
@@ -128,33 +135,34 @@ def intiate_custom_ruleset_for_new_zones(BASE_URL, headers):
 
 def get_current_custom_ruleset_data(BASE_URL, headers):
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
-    ruleset_id = get_custom_ruleset_id(BASE_URL, headers)
+    ruleset_ids = get_custom_ruleset_id(BASE_URL, headers)
     
     custom_ruleset = []
     for zone_id in zone_ids:
-        # Get the current rules from the custom ruleset
-        rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
-        response = requests.get(rulesets_id_api, headers=headers)
+        for ruleset_id in ruleset_ids:
+            # Get the current rules from the custom ruleset
+            rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
+            response = requests.get(rulesets_id_api, headers=headers)
 
-        if response.status_code == 404:
-            continue
-        if response.status_code != 200:
-            raise Exception(f"Failed to retrieve data from List Rulesets API with specific ruleset id. Status code: {response.status_code}") 
-    
-        data = response.json()
+            if response.status_code == 404:
+                continue
+            if response.status_code != 200:
+                raise Exception(f"Failed to retrieve data from List Rulesets API with specific ruleset id. Status code: {response.status_code}") 
         
-        if not data["result"]:
+            data = response.json()
             
-        # Transform data
-            for rule in data["result"]["rules"]:
-                current_custom_ruleset = {}
-                current_custom_ruleset["action"] = rule["action"]
-                current_custom_ruleset["expression"] = rule["expression"]
-                current_custom_ruleset["description"] = rule["description"]
-                current_custom_ruleset["enabled"] = rule["enabled"]
-                custom_ruleset.append(current_custom_ruleset)
+            if not data["result"]:
+                
+            # Transform data
+                for rule in data["result"]["rules"]:
+                    current_custom_ruleset = {}
+                    current_custom_ruleset["action"] = rule["action"]
+                    current_custom_ruleset["expression"] = rule["expression"]
+                    current_custom_ruleset["description"] = rule["description"]
+                    current_custom_ruleset["enabled"] = rule["enabled"]
+                    custom_ruleset.append(current_custom_ruleset)
                     
-        return custom_ruleset
+    return custom_ruleset
 
 def prepare_firewall_rules_for_migration(BASE_URL, headers):
     
@@ -191,7 +199,7 @@ def combine_and_migrate(BASE_URL, headers):
     current_custom_rules = get_current_custom_ruleset_data(BASE_URL, headers)
     firewall_rules = prepare_firewall_rules_for_migration(BASE_URL, headers)
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
-    ruleset_id = get_custom_ruleset_id(BASE_URL, headers)
+    ruleset_ids = get_custom_ruleset_id(BASE_URL, headers)
     
     migrate = firewall_rules + current_custom_rules
     
@@ -199,15 +207,16 @@ def combine_and_migrate(BASE_URL, headers):
     payload["rules"] = migrate
     
     for zone_id in zone_ids:
-        # Get the current rules from the custom ruleset
-        rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
-        response = requests.put(rulesets_id_api, headers=headers, json=payload)
-        
-        if response.status_code in [404, 400]:
-            continue
-        if response.status_code != 200:
-            raise Exception(f"Failed to add data to Rulesets API with specific ruleset id. Status code: {response.status_code}") 
-        break
+        for ruleset_id in ruleset_ids:
+            # Get the current rules from the custom ruleset
+            rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
+            response = requests.put(rulesets_id_api, headers=headers, json=payload)
+            
+            if response.status_code in [404, 400]:
+                continue
+            if response.status_code != 200:
+                raise Exception(f"Failed to add data to Rulesets API with specific ruleset id. Status code: {response.status_code}") 
+            break
     
-    return response 
+        return response 
 print(combine_and_migrate(BASE_URL, headers))
