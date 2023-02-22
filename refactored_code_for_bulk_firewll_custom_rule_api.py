@@ -25,7 +25,7 @@ def loop_zone_id_pages(BASE_URL, headers):
         
         # Catch error
         if response.status_code != 200:
-            raise Exception(f"Failed to retrieve data from API. Status code: {response.status_code}")
+            raise Exception(f"Failed to retrieve data from the Zone IDs API. Status code: {response.status_code}")
         
         # Parse the response as JSON
         data = response.json()
@@ -76,7 +76,7 @@ def loop_firewall_rules_pages(BASE_URL, headers):
             
             # Catch error
             if response.status_code != 200:
-                raise Exception(f"Failed to retrieve data from List Zones API. Status code: {response.status_code}")
+                raise Exception(f"Failed to retrieve data from Firewall Rules IDs API. Status code: {response.status_code}")
 
             data = response.json()
             
@@ -121,8 +121,12 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
         rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
         response = requests.get(rulesets_id_api, headers=headers)
 
+        new_custom_ruleset = { "name": "Default", "kind": "custom", "phase": "http_request_firewall_custom" }
         if response.status_code == 404:
-            continue
+            create_new_custom_ruleset = BASE_URL + f"/{zone_id}/rulesets"
+            response = requests.post(create_new_custom_ruleset, headers=headers, json=new_custom_ruleset)
+            if response.status_code == 404:
+                continue
         if response.status_code != 200:
             raise Exception(f"Failed to retrieve data from List Rulesets API with specific ruleset id. Status code: {response.status_code}") 
     
@@ -140,6 +144,8 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
                 custom_ruleset.append(current_custom_ruleset)
                     
         return custom_ruleset
+    
+print(get_current_custom_ruleset_data(BASE_URL, headers))
 
 def prepare_firewall_rules_for_migration(BASE_URL, headers):
     
