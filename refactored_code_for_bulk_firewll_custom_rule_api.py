@@ -180,15 +180,19 @@ def combine_and_migrate(BASE_URL, headers):
     
     migrate = firewall_rules + current_custom_rules
     
+    payload = {}
+    payload["rules"] = migrate
+    
     for zone_id in zone_ids:
         # Get the current rules from the custom ruleset
         rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
-        response = requests.put(rulesets_id_api, headers=headers, json=migrate)
+        response = requests.put(rulesets_id_api, headers=headers, json=payload)
         
         if response.status_code in [404, 400]:
             continue
         if response.status_code != 200:
-            raise Exception(f"Failed to retrieve data from List Rulesets API with specific ruleset id. Status code: {response.status_code}") 
+            raise Exception(f"Failed to add data to Rulesets API with specific ruleset id. Status code: {response.status_code}") 
+        break
     
     return response 
 print(combine_and_migrate(BASE_URL, headers))
