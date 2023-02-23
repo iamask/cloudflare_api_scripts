@@ -15,9 +15,30 @@ headers = {
 }
 
 zone_id = input("Enter zone_id: ")
-ruleset_id = input("Enter custom_ruleset_id: ")
+phase = input("Input rule phase: ")
 
-def get_previous_version_id(BASE_URL, headers, zone_id, ruleset_id):
+def get_custom_ruleset_id(BASE_URL, headers, zone_id):
+
+    # Get list of rulesets from zone
+    rulesets_api = BASE_URL + f"/{zone_id}/rulesets"
+    response = requests.get(rulesets_api, headers=headers)
+    
+    if response.status_code != 200:
+        raise Exception(f"Failed to retrieve data from List Rulesets API. Status code: {response.status_code}")
+
+    data = response.json()
+    
+    for ruleset_ids in data["result"]:
+        if ruleset_ids["phase"] == phase:
+            ruleset_id = ruleset_ids["id"]
+    
+    return ruleset_id
+
+def get_previous_version_id(BASE_URL, headers, zone_id):
+    
+    # Get Ruleset ID
+    ruleset_id = get_custom_ruleset_id(BASE_URL, headers, zone_id)
+    
     # Get versions objects
     rulesets_versions_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}/versions"
     response = requests.get(rulesets_versions_api, headers=headers)
@@ -30,7 +51,10 @@ def get_previous_version_id(BASE_URL, headers, zone_id, ruleset_id):
     
     return version_id
         
-def get_previous_version_id_data(BASE_URL, headers, zone_id, ruleset_id):
+def get_previous_version_id_data(BASE_URL, headers, zone_id):
+    
+    # Get Ruleset ID
+    ruleset_id = get_custom_ruleset_id(BASE_URL, headers, zone_id)
     
     # Get previous version ID
     version_id = get_previous_version_id(BASE_URL, headers, zone_id, ruleset_id)
@@ -62,15 +86,18 @@ def get_previous_version_id_data(BASE_URL, headers, zone_id, ruleset_id):
                     
     return custom_ruleset
 
-def revert(BASE_URL, headers, zone_id, ruleset_id):
-
-    current_custom_rules = get_previous_version_id_data(BASE_URL, headers, zone_id, ruleset_id)
+def revert(BASE_URL, headers, zone_id):
+    # Get Ruleset ID
+    ruleset_id = get_custom_ruleset_id(BASE_URL, headers, zone_id)
+    
+    # Get previous version
+    previous_custom_rules = get_previous_version_id_data(BASE_URL, headers, zone_id)
     
     # Instantiate object
     payload = {}
     
     # Set up payload
-    payload["rules"] = current_custom_rules
+    payload["rules"] = previous_custom_rules
     
     # Get the current rules from the custom ruleset
     rulesets_id_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}"
