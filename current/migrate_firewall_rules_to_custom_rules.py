@@ -143,7 +143,7 @@ def get_custom_ruleset_id(BASE_URL, headers, zone_id):
     data = response.json()
     
     for ruleset_ids in data["result"]:
-        if ruleset_ids["phase"] == "http_request_firewall_custom":
+        if ruleset_ids["phase"] == "http_request_firewall_custom" and ruleset_ids["source"] == "firewall_custom":
             ruleset_id = ruleset_ids["id"]
     
     return ruleset_id
