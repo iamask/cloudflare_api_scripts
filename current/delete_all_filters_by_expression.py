@@ -93,7 +93,7 @@ def delete_all_filters_by_ip_list(BASE_URL, headers, filter):
             if not data["result"]:
                 break
             # Move to the next page of results
-            page += 
+            page += 1
             
     return response
 
