@@ -3,7 +3,7 @@
 ## Remember to install requirements 
 ```python3 -m pip install -r requirements.txt```
 
-*** (you only need `os` and `requests` for these ones currently)
+> (you only need `os` and `requests` for these ones currently)
 
 ## API Keys/Tokens
 The zone IDs used will depend on the scope of your API key, if you're a member of many orgs, then it'll run for any zones that are compatible. Also, the scripts assumes you have these keys set as environment variables in your shell of choice.
