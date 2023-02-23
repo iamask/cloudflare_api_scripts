@@ -108,8 +108,6 @@ def loop_firewall_rules_pages(BASE_URL, headers):
                 
     return raw_firewall_rules_data
 
-print(loop_firewall_rules_pages(BASE_URL, headers))
-
 def get_custom_ruleset_ids(BASE_URL, headers):
     
     zone_ids = iterate_zone_ids_into_list(BASE_URL, headers)
@@ -162,6 +160,8 @@ def get_current_custom_ruleset_data(BASE_URL, headers):
                 custom_ruleset.append(current_custom_ruleset)
                     
     return custom_ruleset
+
+print(get_current_custom_ruleset_data(BASE_URL, headers))
 
 def prepare_firewall_rules_for_migration(BASE_URL, headers):
     
