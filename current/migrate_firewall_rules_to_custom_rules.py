@@ -174,6 +174,10 @@ def get_current_custom_ruleset_data(BASE_URL, headers, zone_id):
             current_custom_ruleset["expression"] = rule["expression"]
             current_custom_ruleset["description"] = rule["description"]
             current_custom_ruleset["enabled"] = rule["enabled"]
+            if "logging" in rule:
+                current_custom_ruleset["logging"] = rule["logging"]
+            if "action_parameters" in rule:
+                current_custom_ruleset["action_parameters"] = rule["action_parameters"]
             
             # Add data to new list
             custom_ruleset.append(current_custom_ruleset)
