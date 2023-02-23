@@ -1,7 +1,7 @@
 # Migrate Firewall Rules to Custom Rules
 
 ## Remember to install requirements 
-```python3 -m pip intall -r requirements.txt```
+```python3 -m pip install -r requirements.txt```
 
 #### (you only need `os` and `requests` for these ones currently)
 
