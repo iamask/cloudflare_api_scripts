@@ -59,4 +59,5 @@ def iterate_zone_ids_into_list(BASE_URL, headers):
         zone_id_list.append(zone_id)
 
     return zone_id_list
-print(iterate_zone_ids_into_list(BASE_URL, headers))
+
+iterate_zone_ids_into_list(BASE_URL, headers)

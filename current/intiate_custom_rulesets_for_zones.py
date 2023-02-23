@@ -78,3 +78,5 @@ def intiate_custom_ruleset_for_new_zones(BASE_URL, headers):
             raise Exception(f"Failed to create new custom ruleset. Status code: {response.status_code}") 
 
     return response
+
+intiate_custom_ruleset_for_new_zones(BASE_URL, headers)

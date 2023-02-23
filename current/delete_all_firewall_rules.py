@@ -91,3 +91,5 @@ def delete_firewall_rules(BASE_URL, headers):
             page += 1
             
     return response
+
+delete_firewall_rules(BASE_URL, headers)
