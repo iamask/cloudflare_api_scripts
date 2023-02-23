@@ -15,9 +15,29 @@ headers = {
 }
 
 zone_id = input("Enter zone_id: ")
+
+def list_and_print_all_phases(BASE_URL, headers, zone_id):
+    
+    # Get list of rulesets from zone
+    rulesets_api = BASE_URL + f"/{zone_id}/rulesets"
+    response = requests.get(rulesets_api, headers=headers)
+    
+    if response.status_code != 200:
+        raise Exception(f"Failed to retrieve data from List Rulesets API. Status code: {response.status_code}")
+
+    data = response.json()
+
+    for phases in data["result"]:
+        phase = phases["phase"]
+        print(phase)
+    
+    return phase
+
+list_and_print_all_phases(BASE_URL, headers, zone_id)
+
 phase = input("Input rule phase: ")
 
-def get_custom_ruleset_id(BASE_URL, headers, zone_id):
+def get_custom_ruleset_id(BASE_URL, headers, zone_id, phase):
 
     # Get list of rulesets from zone
     rulesets_api = BASE_URL + f"/{zone_id}/rulesets"
@@ -29,35 +49,32 @@ def get_custom_ruleset_id(BASE_URL, headers, zone_id):
     data = response.json()
     
     for ruleset_ids in data["result"]:
-        if ruleset_ids["phase"] == phase:
+        if phase in ruleset_ids["phase"]:
             ruleset_id = ruleset_ids["id"]
     
     return ruleset_id
 
-def get_previous_version_id(BASE_URL, headers, zone_id):
+def get_previous_version_id(BASE_URL, headers, zone_id, phase):
     
     # Get Ruleset ID
-    ruleset_id = get_custom_ruleset_id(BASE_URL, headers, zone_id)
+    ruleset_id = get_custom_ruleset_id(BASE_URL, headers, zone_id, phase)
     
     # Get versions objects
     rulesets_versions_api = BASE_URL + f"/{zone_id}/rulesets/{ruleset_id}/versions"
     response = requests.get(rulesets_versions_api, headers=headers)
     data = response.json()
 
-    # Iterate over the version ids and skipping the latest one, which is usually in the first object, since you can't delete the latest version as it is the same as the pinned version at this point         
-    for rulesets_versions_id in data["result"][1:]:
-        for version_id in rulesets_versions_id["version"]:
-            version_id = rulesets_versions_id["version"]
+    version_id = data["result"][1]["version"]
     
     return version_id
-        
-def get_previous_version_id_data(BASE_URL, headers, zone_id):
+
+def get_previous_version_id_data(BASE_URL, headers, zone_id, phase):
     
     # Get Ruleset ID
-    ruleset_id = get_custom_ruleset_id(BASE_URL, headers, zone_id)
+    ruleset_id = get_custom_ruleset_id(BASE_URL, headers, zone_id, phase)
     
     # Get previous version ID
-    version_id = get_previous_version_id(BASE_URL, headers, zone_id, ruleset_id)
+    version_id = get_previous_version_id(BASE_URL, headers, zone_id, phase)
     
     # Instantiate new list
     custom_ruleset = []
@@ -86,12 +103,12 @@ def get_previous_version_id_data(BASE_URL, headers, zone_id):
                     
     return custom_ruleset
 
-def revert(BASE_URL, headers, zone_id):
+def revert(BASE_URL, headers, zone_id, phase):
     # Get Ruleset ID
-    ruleset_id = get_custom_ruleset_id(BASE_URL, headers, zone_id)
+    ruleset_id = get_custom_ruleset_id(BASE_URL, headers, zone_id, phase)
     
     # Get previous version
-    previous_custom_rules = get_previous_version_id_data(BASE_URL, headers, zone_id)
+    previous_custom_rules = get_previous_version_id_data(BASE_URL, headers, zone_id, phase)
     
     # Instantiate object
     payload = {}
@@ -108,3 +125,5 @@ def revert(BASE_URL, headers, zone_id):
         raise Exception(f"Failed to add data to Rulesets API with specific ruleset id. Status code: {response.status_code}")
     
     return response
+
+revert(BASE_URL, headers, zone_id, phase)
